@@ -8,9 +8,8 @@ ColiasConnect = False
 port = '/dev/rfcomm0'
 
 #Initialise Colias Connection
-
 while ColiasConnect == False:
-	print '---------------------------------------\nAttempting to connect to port: %s' % port
+	print '-------------------------------------------------------\nAttempting to connect to port: %s' % port
 	#Connect to default serial port for Bluetooth module
 	try:		
 		ser = serial.Serial(
@@ -20,36 +19,40 @@ while ColiasConnect == False:
 			stopbits=serial.STOPBITS_ONE,
 			bytesize=serial.EIGHTBITS
 		)
-		#ser.isOpen()
 		ColiasConnect = True
 		print 'Port connection succesfull.\n'
 	except:
-		print 'Error connecting to port.\n'
-
-	#Initialise settings and test if Communcation is working
-	try:
-			time.sleep(3)
-			ser.write('MD2 30 30' + '\r\n')
-			time.sleep(1)
-			ser.write('MD3 50 50' + '\r\n')
-			time.sleep(1)		
-			ser.write('MD4 33 38' + '\r\n')
-			time.sleep(1)
-			ser.write('MD5 35 35' + '\r\n')
-			print 'Colias Connected and initialised'
-	except:
-		print 'initialisation failed, Ensure Colias is switched on'
 		ColiasConnect = False
-		print 'Enter new port, leave blank to retry default port, type \'wired\' to try default wired port, type \'exit\' to Quit'
-		userinput = raw_input()
-		if userinput == '':
-			port = '/dev/rfcomm0'
-		elif userinput == 'wired':
-			port = '/dev/ttyUSB0'
-		elif userinput == 'exit':
-			sys.exit(0)
-		else:
-			port = userinput
+		print 'Error connecting to port.\n'
+	
+	if ColiasConnect == True:
+		print'Attempting to initialise Colias'
+		#Initialise settings and test if Communcation channel is working
+		try:
+				time.sleep(3)
+				ser.write('MD2 30 30' + '\r\n')
+				time.sleep(1)
+				ser.write('MD3 50 50' + '\r\n')
+				time.sleep(1)		
+				ser.write('MD4 33 38' + '\r\n')
+				time.sleep(1)
+				ser.write('MD5 35 35' + '\r\n')
+				print 'Colias initialised'
+				break
+		except:
+			print 'initialisation failed, Ensure Colias is switched on\n'
+			ColiasConnect = False
+
+	print 'Enter new port, leave blank to retry default port, type \'wired\' to try default wired port, type \'exit\' to Quit'
+	userinput = raw_input()
+	if userinput == '':
+		port = '/dev/rfcomm0'
+	elif userinput == 'wired':
+		port = '/dev/ttyUSB0'
+	elif userinput == 'exit':
+		sys.exit(0)
+	else:
+		port = userinput
 		
 
 #Initialise Scratch Connection
@@ -94,7 +97,7 @@ if ColiasConnect == True and ScratchConnect == True:
 			elif msg[1] == 'Exit':
 				False
 		elif msg [0] == 'sensor-update':
-			print 'sensor broadcast received'
+			print 'sensor broadcast received: %s' % msg[1]
 else:
 	print 'Connections could not be initialised, Exiting interface'
 	sys.exit(0)
